@@ -1,37 +1,57 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh">
 <head>
-  <title>笔记输入</title>
+  <meta charset="UTF-8" />
+  <title>发送到 Flomo</title>
+  <style>
+    body { font-family: sans-serif; margin: 2em; }
+    textarea { width: 100%; height: 150px; margin-bottom: 1em; }
+    button { padding: 0.5em 1em; font-size: 1em; }
+    #status { margin-top: 1em; color: green; }
+  </style>
 </head>
 <body>
-  <h2>输入笔记</h2>
-  <textarea id="note" rows="5" cols="50" placeholder="输入内容，标签用#号标注"></textarea><br>
+  <h2>发送笔记到 Flomo</h2>
+  <textarea id="noteContent" placeholder="写点什么..."></textarea>
+  <br>
   <button onclick="sendNote()">发送</button>
-  <p id="result"></p>
+  <div id="status"></div>
 
   <script>
     async function sendNote() {
-      const content = document.getElementById('note').value.trim();
-      if (!content) {
-        alert('请填写笔记内容');
+      const content = document.getElementById("noteContent").value;
+      const status = document.getElementById("status");
+
+      if (!content.trim()) {
+        status.textContent = "内容不能为空";
+        status.style.color = "red";
         return;
       }
-      const data = { content };
+
+      // 🔧 替换成你的 Flomo Webhook 地址
+      const webhookUrl = "https://flomoapp.com/iwh/Njk1MzI/26560419def7c51f3b61e6c79eb1f0f9/";
 
       try {
-        const response = await fetch('http://localhost:5678/webhook/flomo-receive', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
+        const res = await fetch(webhookUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ content })
         });
-        if (response.ok) {
-          document.getElementById('result').innerText = '发送成功！';
-          document.getElementById('note').value = '';
+
+        if (res.ok) {
+          status.textContent = "发送成功 ✅";
+          status.style.color = "green";
+          document.getElementById("noteContent").value = "";
         } else {
-          document.getElementById('result').innerText = '发送失败：' + response.statusText;
+          const error = await res.text();
+          status.textContent = "发送失败 ❌: " + error;
+          status.style.color = "red";
         }
-      } catch (e) {
-        document.getElementById('result').innerText = '发送错误：' + e.message;
+      } catch (err) {
+        status.textContent = "发送出错 ❌: " + err.message;
+        status.style.color = "red";
       }
     }
   </script>
