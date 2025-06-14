@@ -1,37 +1,108 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh">
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>笔记输入</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      padding: 1rem;
+      background: #f9f9f9;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    textarea {
+      width: 100%;
+      max-width: 600px;
+      height: 150px;
+      font-size: 1rem;
+      padding: 0.75rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      resize: vertical;
+      box-sizing: border-box;
+    }
+
+    button {
+      margin-top: 1rem;
+      padding: 0.75rem 1.5rem;
+      font-size: 1.1rem;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      width: 100%;
+      max-width: 600px;
+    }
+
+    button:disabled {
+      background-color: #9E9E9E;
+      cursor: not-allowed;
+    }
+
+    #result {
+      margin-top: 1rem;
+      font-size: 1rem;
+      color: #333;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 620px;
+      margin: auto;
+      padding: 1rem;
+    }
+  </style>
 </head>
 <body>
-  <h2>输入笔记</h2>
-  <textarea id="note" rows="5" cols="50" placeholder="输入内容，标签用#号标注"></textarea><br>
-  <button onclick="sendNote()">发送</button>
-  <p id="result"></p>
+  <div class="container">
+    <h2>📒 输入笔记</h2>
+    <textarea id="note" placeholder="请输入笔记内容，标签用 #tag 标注"></textarea>
+    <button id="sendBtn" onclick="sendNote()">📤 发送 </button>
+    <p id="result"></p>
+  </div>
 
   <script>
     async function sendNote() {
       const content = document.getElementById('note').value.trim();
+      const btn = document.getElementById('sendBtn');
+      const result = document.getElementById('result');
+      result.innerText = '';
+      
       if (!content) {
         alert('请填写笔记内容');
         return;
       }
-      const data = { content };
+
+      btn.disabled = true;
+      btn.innerText = '发送中...';
 
       try {
         const response = await fetch('https://my-n8n-2u0h.onrender.com/webhook/receive-note', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
+          body: JSON.stringify({ content })
         });
+
         if (response.ok) {
-          document.getElementById('result').innerText = '发送成功！';
+          result.innerText = '✅ 发送成功！';
           document.getElementById('note').value = '';
         } else {
-          document.getElementById('result').innerText = '发送失败：' + response.statusText;
+          result.innerText = '❌ 发送失败：' + response.statusText;
         }
       } catch (e) {
-        document.getElementById('result').innerText = '发送错误：' + e.message;
+        result.innerText = '❌ 网络错误：' + e.message;
+      } finally {
+        btn.disabled = false;
+        btn.innerText = '📤 发送';
       }
     }
   </script>
