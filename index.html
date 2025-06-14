@@ -4,31 +4,30 @@
   <meta charset="UTF-8" />
   <title>发送到 Flomo</title>
   <style>
-    body { font-family: sans-serif; margin: 2em; }
-    textarea { width: 100%; height: 150px; margin-bottom: 1em; }
-    button { padding: 0.5em 1em; font-size: 1em; }
-    #status { margin-top: 1em; color: green; }
+    body { font-family: sans-serif; margin: 2em; max-width: 600px; }
+    textarea { width: 100%; height: 150px; margin-bottom: 1em; font-size: 1em; padding: 0.5em; }
+    button { padding: 0.5em 1.2em; font-size: 1em; }
+    #status { margin-top: 1em; font-weight: bold; }
   </style>
 </head>
 <body>
-  <h2>发送笔记到 Flomo</h2>
-  <textarea id="noteContent" placeholder="写点什么..."></textarea>
+  <h2>📤 发送笔记到 Flomo</h2>
+  <textarea id="noteContent" placeholder="写点什么... 支持 #标签"></textarea>
   <br>
   <button onclick="sendNote()">发送</button>
   <div id="status"></div>
 
   <script>
     async function sendNote() {
-      const content = document.getElementById("noteContent").value;
+      const content = document.getElementById("noteContent").value.trim();
       const status = document.getElementById("status");
 
-      if (!content.trim()) {
-        status.textContent = "内容不能为空";
+      if (!content) {
+        status.textContent = "❌ 内容不能为空";
         status.style.color = "red";
         return;
       }
 
-      // 🔧 替换成你的 Flomo Webhook 地址
       const webhookUrl = "https://flomoapp.com/iwh/Njk1MzI/26560419def7c51f3b61e6c79eb1f0f9/";
 
       try {
@@ -41,16 +40,16 @@
         });
 
         if (res.ok) {
-          status.textContent = "发送成功 ✅";
+          status.textContent = "✅ 成功发送到 Flomo！";
           status.style.color = "green";
           document.getElementById("noteContent").value = "";
         } else {
           const error = await res.text();
-          status.textContent = "发送失败 ❌: " + error;
+          status.textContent = "❌ 发送失败：" + error;
           status.style.color = "red";
         }
       } catch (err) {
-        status.textContent = "发送出错 ❌: " + err.message;
+        status.textContent = "❌ 网络错误：" + err.message;
         status.style.color = "red";
       }
     }
