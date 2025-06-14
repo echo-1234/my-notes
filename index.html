@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>笔记输入</title>
+</head>
+<body>
+  <h2>输入笔记</h2>
+  <textarea id="note" rows="5" cols="50" placeholder="输入内容，标签用#号标注"></textarea><br>
+  <button onclick="sendNote()">发送</button>
+  <p id="result"></p>
+
+  <script>
+    async function sendNote() {
+      const content = document.getElementById('note').value.trim();
+      if (!content) {
+        alert('请填写笔记内容');
+        return;
+      }
+      const data = { content };
+
+      try {
+        const response = await fetch('http://你的n8n地址:5678/webhook/send-note', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        if (response.ok) {
+          document.getElementById('result').innerText = '发送成功！';
+          document.getElementById('note').value = '';
+        } else {
+          document.getElementById('result').innerText = '发送失败：' + response.statusText;
+        }
+      } catch (e) {
+        document.getElementById('result').innerText = '发送错误：' + e.message;
+      }
+    }
+  </script>
+</body>
+</html>
